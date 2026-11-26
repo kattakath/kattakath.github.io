@@ -1,38 +1,50 @@
 # kattakath.github.io
 
-The **Kattakath family landing page** — the site served at
-[kattakath.com](https://kattakath.com).
+[![CI status](https://github.com/kattakath/kattakath.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/kattakath/kattakath.github.io/actions/workflows/ci.yml)
+[![GitHub Pages deploy status](https://github.com/kattakath/kattakath.github.io/actions/workflows/pages.yml/badge.svg)](https://github.com/kattakath/kattakath.github.io/actions/workflows/pages.yml)
+[![kattakath.com availability](https://img.shields.io/website?url=https%3A%2F%2Fkattakath.com)](https://kattakath.com)
+[![License](https://img.shields.io/github/license/kattakath/kattakath.github.io)](LICENSE)
 
-This is the canonical GitHub **organization Pages** repo for the `kattakath` org.
+kattakath.com: a family landing page, plain static HTML deployed by GitHub Pages with no build step
 
-## What's in here
+This is the `kattakath` organization's Pages repo. It is the source of truth for the site.
+
+## Install
+
+Nothing to install. There is no build step, no framework and no bundler, on purpose: Pages
+serves the files as they are.
+
+To preview locally, serve the repo root with any static server, for example
+`python3 -m http.server`.
+
+## Usage
 
 | Path | What it is |
-|---|---|
-| `index.html` | The **entire site.** One self-contained file — all CSS, JS, fonts and assets are inlined. No external `<script src>` and no external `<link rel=stylesheet>`. |
-| `CNAME` | The custom domain: `kattakath.com`. |
-| `.github/workflows/pages.yml` | Deploys the repo root to GitHub Pages on every push to `main`. |
+| --- | --- |
+| `index.html` | The home page: one self-contained file with its CSS, JS and images inlined |
+| `about/`, `privacy-policy/`, `terms-of-service/` | The other pages, one `index.html` each |
+| `assets/` | Files the policy pages share |
+| `CNAME` | The custom domain, `kattakath.com` |
+| `.github/workflows/pages.yml` | Deploys the repo root to Pages on every push to `main` |
 
-**There is no build step, no framework and no bundler** — and there should not be
-one. The page is a plain static file; Pages serves it verbatim.
+To change the site:
 
-## Where the content came from
+1. Edit the page.
+2. Push to `main`.
+3. `pages.yml` deploys it. Each run shows under **Actions** and in the `github-pages` environment.
 
-The source of truth for this page **used to be** the private `nix-personal` flake, at
-`sites/landing/index.html`, served from the self-hosted Raspberry Pi (`nixpi`) behind a
-Cloudflare Tunnel. This repo is now that source of truth.
+`pages.yml` removes the repo tooling (`flake.nix`, `flake.lock`, `LICENSE` and the editor and
+dev-container files) before it uploads, so those are never served. Add a new tooling file to
+that `rm` line, or it goes live.
 
-## How to edit
+The default Pages URL, <https://kattakath.github.io>, serves the same site whatever the custom
+domain's DNS state.
 
-1. Edit `index.html`.
-2. Commit and push to `main`.
-3. The `Deploy to GitHub Pages` workflow builds and deploys automatically.
+## Contributing
 
-Deployments are visible under the repo's **Actions** tab and in the
-`github-pages` environment.
+Open an issue or a pull request. CI runs on every pull request, and one required check, `gate`,
+must pass.
 
-## Domain
+## License
 
-- Custom domain: **kattakath.com** (set via `CNAME` and the repo's Pages settings).
-- Default Pages URL: <https://kattakath.github.io> — always serves this page,
-  regardless of the custom domain's DNS state.
+[CC-BY-4.0](LICENSE)
