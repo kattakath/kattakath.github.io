@@ -8,13 +8,17 @@ name: ci
 # skippable job must never BE the required check (GitHub docs; see kattakath/.github README).
 
 on:
+  # The owner's changes land by direct push (admin bypass), so CI runs on push to main too.
+  push:
+    branches: [main]
   pull_request:
   merge_group:
     types: [checks_requested]
   workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.ref }}
+  # A push run is keyed on its sha: a ref key would let the next push cancel its pending run.
+  group: ci-${{ github.event.pull_request.number || (github.event_name == 'push' && github.sha) || github.ref }}
   # Supersede stale PR runs; never cancel a queue run (the queue would eject the PR).
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
