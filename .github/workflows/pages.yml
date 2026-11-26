@@ -29,6 +29,11 @@ jobs:
         uses: actions/configure-pages@v5
 
       # No build step on purpose: index.html is a single self-contained file.
+      # upload-pages-artifact@v3 excludes only .git and .github, so the repo-kit files
+      # (flake + generated files) leave the checkout here and are never served.
+      - name: Drop repo tooling from the artifact
+        run: rm -rf flake.nix flake.lock LICENSE .envrc .editorconfig .devcontainer
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -24,7 +24,7 @@ permissions:
 jobs:
   gate:
     if: ${{ !cancelled() }}
-    needs: [gitleaks]
+    needs: [gitleaks, flake-check]
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
@@ -33,7 +33,8 @@ jobs:
         with:
           needs: ${{ toJSON(needs) }}
           expect: >-
-            {"gitleaks": ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository || vars.QUEUE_ENABLED != 'true' }}}
+            {"gitleaks": ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository || vars.QUEUE_ENABLED != 'true' }},
+             "flake-check": true}
 
   # Secrets over the WHOLE history (a value one commit adds and a later one removes still leaks).
   gitleaks:
@@ -47,3 +48,23 @@ jobs:
       - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31
       - name: gitleaks over all history
         run: nix run nixpkgs#gitleaks -- git --redact --no-banner --exit-code 1 .
+
+  # Every check on both Linux arches the kit targets: the devShell's toolchain, treefmt,
+  # and each generated file's drift check (files:<path>).
+  flake-check:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04-arm, ubuntu-24.04]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: nix flake check
+        run: nix flake check --print-build-logs
